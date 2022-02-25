@@ -1,6 +1,6 @@
 {
-    "name": "kolgaev/ip-info",
-    "description": "IP info for site",
+    "name": "kolgaev/site-stats",
+    "description": "Statistic info for site",
     "license": "MIT",
     "autoload": {
         "psr-4": {
