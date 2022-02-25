@@ -57,6 +57,7 @@ class Ip extends DataBase
         try {
             Visit::create([
                 'ip' => $this->ip,
+                'is_blocked' => $this->block,
                 'page' => $_SERVER['REQUEST_URI'] ?? null,
                 'method' => $_SERVER['REQUEST_METHOD'] ?? null,
                 'referer' => $_SERVER['HTTP_REFERER'] ?? null,
@@ -81,7 +82,11 @@ class Ip extends DataBase
 
             $statistic->save();
 
-            return $statistic->only('visits', 'requests', 'visits_drops');
+            $statistic = $statistic->only('visits', 'requests', 'visits_drops');
+
+            return array_merge($statistic, [
+                'visits_all' => $statistic['visits'] + $statistic['visits_drops'],
+            ]);
         } catch (Exception $e) {
             return [
                 'writeStory' => $e->getMessage(),

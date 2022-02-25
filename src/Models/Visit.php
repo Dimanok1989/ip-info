@@ -20,6 +20,7 @@ class Visit extends Model
      */
     protected $fillable = [
         'ip',
+        'is_blocked',
         'page',
         'method',
         'referer',
@@ -34,6 +35,7 @@ class Visit extends Model
      * @var array
      */
     protected $casts = [
+        'is_blocked' => 'boolean',
         'request_data' => 'array',
     ];
 }
