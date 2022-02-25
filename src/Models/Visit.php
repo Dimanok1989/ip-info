@@ -4,7 +4,7 @@ namespace Kolgaev\IpInfo\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Statistic extends Model
+class Visit extends Model
 {
     /**
      * Indicates if the model should be timestamped.
@@ -19,8 +19,13 @@ class Statistic extends Model
      * @var array
      */
     protected $fillable = [
-        'date',
         'ip',
+        'page',
+        'method',
+        'referer',
+        'user_agent',
+        'request_data',
+        'created_at',
     ];
 
     /**
@@ -29,8 +34,6 @@ class Statistic extends Model
      * @var array
      */
     protected $casts = [
-        'visits' => 'integer',
-        'requests' => 'integer',
-        'visits_drops' => 'integer',
+        'request_data' => 'array',
     ];
 }
