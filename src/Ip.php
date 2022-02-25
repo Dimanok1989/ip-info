@@ -10,6 +10,13 @@ use Kolgaev\IpInfo\Models\Visit;
 class Ip extends DataBase
 {
     /**
+     * Флаг блокировки клиента
+     * 
+     * @var null|bool
+     */
+    protected $block = null;
+
+    /**
      * Проверка ip, учет статистики и вывод данных
      * 
      * @return array
@@ -67,7 +74,11 @@ class Ip extends DataBase
                 'ip' => $this->ip,
             ]);
 
-            $statistic->visits++;
+            if ($this->block)
+                $statistic->visits_drops++;
+            else 
+                $statistic->visits++;
+
             $statistic->save();
 
             return $statistic->only('visits', 'requests', 'visits_drops');
