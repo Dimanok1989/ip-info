@@ -1,0 +1,17 @@
+{
+    "name": "kolgaev/ip-info",
+    "description": "IP info for site",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Kolgaev\\IpInfo\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Dimanok1989",
+            "email": "kolgaev@gmail.com"
+        }
+    ],
+    "require": {}
+}
