@@ -27,6 +27,25 @@ CREATE TABLE `blocks` (
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `block_configs`
+--
+
+CREATE TABLE `block_configs` (
+  `id` int NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `block_configs`
+--
+
+INSERT INTO `block_configs` (`id`, `name`, `value`) VALUES
+(1, 'COUNT_REQUESTS_TO_AUTO_BLOCK', '3');
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `statistics`
 --
 
@@ -80,6 +99,13 @@ ALTER TABLE `blocks`
   ADD KEY `is_hostname_is_block` (`is_hostname`,`is_block`);
 
 --
+-- Индексы таблицы `block_configs`
+--
+ALTER TABLE `block_configs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `name` (`name`);
+
+--
 -- Индексы таблицы `statistics`
 --
 ALTER TABLE `statistics`
@@ -108,6 +134,12 @@ ALTER TABLE `automatic_blocks`
 ALTER TABLE `blocks`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
+--
+-- AUTO_INCREMENT для таблицы `block_configs`
+--
+ALTER TABLE `block_configs`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  
 --
 -- AUTO_INCREMENT для таблицы `statistics`
 --
