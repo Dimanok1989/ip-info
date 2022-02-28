@@ -52,13 +52,17 @@ composer init
 
 require __DIR__ . "/vendor/autoload.php";
 
-$ip = (new \Kolgaev\IpInfo\Ip())->check();
+try {
+    $ip = (new \Kolgaev\IpInfo\Ip())->check();
 
-if (!empty($ip['block'])) {
-    if ($ip['block'] == true) {
-        http_response_code(500);
-        exit;
+    if (!empty($ip['block'])) {
+        if ($ip['block'] == true) {
+            http_response_code(500);
+            exit;
+        }
     }
+} catch (\Exception $e) {
+    //
 }
 ```
 
