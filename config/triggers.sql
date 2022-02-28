@@ -17,7 +17,7 @@ ELSE
 
 	INSERT INTO `statistics` SET
     `ip` = NEW.ip,
-    `date` = DATE(NOW()),
+    `date` = CURDATE(),
     `requests` = 1;
 
 END IF;
