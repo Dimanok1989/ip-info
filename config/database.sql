@@ -34,6 +34,7 @@ CREATE TABLE `statistics` (
   `id` int NOT NULL,
   `date` date DEFAULT NULL COMMENT 'Дата посещения',
   `ip` varchar(150) DEFAULT NULL COMMENT 'IP адрес',
+  `hostname` varchar(255) DEFAULT NULL COMMENT 'Имя хоста',
   `visits` int NOT NULL DEFAULT '0' COMMENT 'Количество посещений',
   `requests` int NOT NULL DEFAULT '0' COMMENT 'Количество попыток оставить заявку',
   `visits_drops` int NOT NULL DEFAULT '0' COMMENT 'Количество блокированных посещений'
@@ -75,7 +76,8 @@ ALTER TABLE `automatic_blocks`
 --
 ALTER TABLE `blocks`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `host_is_block` (`host`,`is_block`);
+  ADD KEY `host_is_block` (`host`,`is_block`),
+  ADD KEY `is_hostname_is_block` (`is_hostname`,`is_block`);
 
 --
 -- Индексы таблицы `statistics`

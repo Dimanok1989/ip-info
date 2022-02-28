@@ -25,6 +25,13 @@ class Ip extends DataBase
     protected $auto_block = null;
 
     /**
+     * Флаг блокировки клиента по имени хоста
+     * 
+     * @var null|bool
+     */
+    protected $host_block = null;
+
+    /**
      * Массив ошибок
      * 
      * @var array
@@ -39,6 +46,7 @@ class Ip extends DataBase
     protected $default_response = [
         'auto_block' => null,
         'block' => null,
+        'host_block' => null,
         'requests' => 0,
         'visits' => 0,
         'visits_drops' => 0,
@@ -53,14 +61,16 @@ class Ip extends DataBase
     public function check()
     {
         $this->ip = $this->ip();
+        $this->host = gethostbyaddr($this->ip);
 
-        $this->block = $this->checkBlockIp();
+        $this->block = $this->checkBlock();
 
         $story = $this->writeStory();
 
         $response = [
             'auto_block' => $this->auto_block,
             'block' => $this->block,
+            'host_block' => $this->host_block,
         ];
 
         if (count($this->errors)) {
@@ -68,6 +78,21 @@ class Ip extends DataBase
         }
 
         return array_merge($this->default_response, $story, $response);
+    }
+
+    /**
+     * Проверка блокировки
+     * 
+     * @return bool|null
+     */
+    public function checkBlock()
+    {
+        if ($block = $this->checkBlockIp())
+            return $block;
+
+        $this->host_block = $this->checkBlockHost();
+
+        return $this->host_block !== null ? $this->host_block : $block;
     }
 
     /**
@@ -97,6 +122,37 @@ class Ip extends DataBase
     {
         try {
             return $this->auto_block = AutomaticBlock::whereIp($this->ip)->where('date', date("Y-m-d"))->count() > 0;
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+            return null;
+        }
+    }
+
+    /**
+     * Проверка блокировки по хосту
+     * 
+     * @return bool|null
+     */
+    public function checkBlockHost()
+    {
+        if (!$this->host)
+            return false;
+
+        try {
+            $hosts = Block::select('host')
+                ->where([
+                    ['is_hostname', 1],
+                    ['is_block', 1],
+                ])
+                ->get();
+
+            foreach ($hosts as $row) {
+                if (strripos($this->host, $row->host) !== false or $this->ip == $row->host) {
+                    return true;
+                }
+            }
+
+            return false;
         } catch (Exception $e) {
             $this->errors[] = $e->getMessage();
             return null;
@@ -140,6 +196,7 @@ class Ip extends DataBase
             else
                 $statistic->visits++;
 
+            $statistic->hostname = $this->host;
             $statistic->save();
 
             $statistic = $statistic->only('visits', 'requests', 'visits_drops');
