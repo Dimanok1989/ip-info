@@ -17,6 +17,19 @@ class Ip extends DataBase
     protected $block = null;
 
     /**
+     * Массив ответа
+     * 
+     * @var array
+     */
+    protected $default_response = [
+        'block' => null,
+        'requests' => 0,
+        'visits' => 0,
+        'visits_drops' => 0,
+        'visits_all' => 0,
+    ];
+
+    /**
      * Проверка ip, учет статистики и вывод данных
      * 
      * @return array
@@ -28,9 +41,11 @@ class Ip extends DataBase
 
         $story = $this->writeStory();
 
-        return array_merge($story, [
+        $response = [
             'block' => $this->block,
-        ]);
+        ];
+
+        return array_merge($this->default_response, $story, $response);
     }
 
     /**
@@ -77,7 +92,7 @@ class Ip extends DataBase
 
             if ($this->block)
                 $statistic->visits_drops++;
-            else 
+            else
                 $statistic->visits++;
 
             $statistic->save();
@@ -89,7 +104,7 @@ class Ip extends DataBase
             ]);
         } catch (Exception $e) {
             return [
-                'writeStory' => $e->getMessage(),
+                'error' => $e->getMessage(),
             ];
         }
     }
