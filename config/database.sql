@@ -1,4 +1,17 @@
 --
+-- Структура таблицы `automatic_blocks`
+--
+
+CREATE TABLE `automatic_blocks` (
+  `id` int NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `blocks`
 --
 
@@ -51,18 +64,25 @@ CREATE TABLE `visits` (
 --
 
 --
+-- Индексы таблицы `automatic_blocks`
+--
+ALTER TABLE `automatic_blocks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ip_date` (`ip`,`date`);
+
+--
 -- Индексы таблицы `blocks`
 --
 ALTER TABLE `blocks`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `host` (`host`,`is_block`);
+  ADD KEY `host_is_block` (`host`,`is_block`);
 
 --
 -- Индексы таблицы `statistics`
 --
 ALTER TABLE `statistics`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `date` (`date`,`ip`);
+  ADD KEY `date_ip` (`date`,`ip`);
 
 --
 -- Индексы таблицы `visits`
@@ -74,6 +94,12 @@ ALTER TABLE `visits`
 -- AUTO_INCREMENT для сохранённых таблиц
 --
 
+--
+-- AUTO_INCREMENT для таблицы `automatic_blocks`
+--
+ALTER TABLE `automatic_blocks`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+  
 --
 -- AUTO_INCREMENT для таблицы `blocks`
 --

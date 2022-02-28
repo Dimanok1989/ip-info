@@ -3,6 +3,7 @@
 namespace Kolgaev\IpInfo;
 
 use Exception;
+use Kolgaev\IpInfo\Models\AutomaticBlock;
 use Kolgaev\IpInfo\Models\Block;
 use Kolgaev\IpInfo\Models\Statistic;
 use Kolgaev\IpInfo\Models\Visit;
@@ -17,11 +18,26 @@ class Ip extends DataBase
     protected $block = null;
 
     /**
+     * Флаг автоматической блокировки клиента
+     * 
+     * @var null|bool
+     */
+    protected $auto_block = null;
+
+    /**
+     * Массив ошибок
+     * 
+     * @var array
+     */
+    protected $errors = [];
+
+    /**
      * Массив ответа
      * 
      * @var array
      */
     protected $default_response = [
+        'auto_block' => null,
         'block' => null,
         'requests' => 0,
         'visits' => 0,
@@ -37,13 +53,19 @@ class Ip extends DataBase
     public function check()
     {
         $this->ip = $this->ip();
+
         $this->block = $this->checkBlockIp();
 
         $story = $this->writeStory();
 
         $response = [
+            'auto_block' => $this->auto_block,
             'block' => $this->block,
         ];
+
+        if (count($this->errors)) {
+            $response['errors'] = $this->errors;
+        }
 
         return array_merge($this->default_response, $story, $response);
     }
@@ -55,9 +77,28 @@ class Ip extends DataBase
      */
     public function checkBlockIp()
     {
+        if ($auto_block = $this->checkAutoBlock())
+            return $auto_block;
+
         try {
             return Block::whereHost($this->ip)->whereIsBlock(1)->count() > 0;
         } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+            return null;
+        }
+    }
+
+    /**
+     * Проверка автоматической блокировки
+     * 
+     * @return bool|null
+     */
+    public function checkAutoBlock()
+    {
+        try {
+            return $this->auto_block = AutomaticBlock::whereIp($this->ip)->where('date', date("Y-m-d"))->count() > 0;
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
             return null;
         }
     }
@@ -72,7 +113,7 @@ class Ip extends DataBase
         try {
             Visit::create([
                 'ip' => $this->ip,
-                'is_blocked' => $this->block,
+                'is_blocked' => (bool) $this->block,
                 'page' => $_SERVER['REQUEST_URI'] ?? null,
                 'method' => $_SERVER['REQUEST_METHOD'] ?? null,
                 'referer' => $_SERVER['HTTP_REFERER'] ?? null,
@@ -84,7 +125,11 @@ class Ip extends DataBase
                 ],
                 'created_at' => date("Y-m-d H:i:s"),
             ]);
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+        }
 
+        try {
             $statistic = Statistic::firstOrNew([
                 'date' => date("Y-m-d"),
                 'ip' => $this->ip,
@@ -103,10 +148,10 @@ class Ip extends DataBase
                 'visits_all' => $statistic['visits'] + $statistic['visits_drops'],
             ]);
         } catch (Exception $e) {
-            return [
-                'error' => $e->getMessage(),
-            ];
+            $this->errors[] = $e->getMessage();
         }
+
+        return [];
     }
 
     /**
