@@ -22,5 +22,6 @@
         "symfony/string": "^5.4",
         "symfony/translation": "^5.4",
         "symfony/translation-contracts": "^2.5"
-    }
+    },
+    "minimum-stability": "stable"
 }
