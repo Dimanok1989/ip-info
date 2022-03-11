@@ -146,8 +146,8 @@ class Ip extends DataBase
             return null;
 
         try {
-            $period_block = Block::whereIsBlock(1)
-                ->whereIsPeriod(1)
+            $period_block = Block::whereIsPeriod(1)
+                ->whereIsBlock(1)
                 ->where([
                     ['period_start', '<=', $long],
                     ['period_stop', '>=', $long],

@@ -19,6 +19,9 @@ CREATE TABLE `blocks` (
   `id` int NOT NULL,
   `host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `is_hostname` int NOT NULL DEFAULT '0',
+  `is_period` tinyint NOT NULL DEFAULT '0',
+  `period_start` bigint DEFAULT NULL,
+  `period_stop` bigint DEFAULT NULL,
   `is_block` int NOT NULL DEFAULT '0' COMMENT '0 - Разблокирован, 1 - Заблокирован',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -96,7 +99,9 @@ ALTER TABLE `automatic_blocks`
 ALTER TABLE `blocks`
   ADD PRIMARY KEY (`id`),
   ADD KEY `host_is_block` (`host`,`is_block`),
-  ADD KEY `is_hostname_is_block` (`is_hostname`,`is_block`);
+  ADD KEY `is_hostname_is_block` (`is_hostname`,`is_block`),
+  ADD KEY `is_period_is_block` (`is_period`,`is_block`),
+  ADD KEY `period` (`period_start`,`period_stop`);
 
 --
 -- Индексы таблицы `block_configs`
