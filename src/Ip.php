@@ -44,13 +44,16 @@ class Ip extends DataBase
      * @var array
      */
     protected $default_response = [
-        'auto_block' => null,
         'block' => null,
-        'host_block' => null,
+        'block_auto' => null,
+        'block_host' => null,
+        'block_period' => null,
+        'block_ip' => null,
         'requests' => 0,
         'visits' => 0,
         'visits_drops' => 0,
         'visits_all' => 0,
+        'ip' => null,
     ];
 
     /**
@@ -68,9 +71,12 @@ class Ip extends DataBase
         $story = $this->writeStory();
 
         $response = [
-            'auto_block' => $this->auto_block,
-            'block' => $this->block,
-            'host_block' => $this->host_block,
+            'block' => $this->block ?? null,
+            'block_auto' => $this->auto_block ?? null,
+            'block_host' => $this->host_block ?? null,
+            'block_period' => $this->period_block ?? null,
+            'block_ip' => $this->ip_block ?? null,
+            'ip' => $this->ip,
         ];
 
         if (count($this->errors)) {
@@ -102,11 +108,53 @@ class Ip extends DataBase
      */
     public function checkBlockIp()
     {
+        if ($ip_block = $this->checkBlockIpAddr())
+            return $ip_block;
+
         if ($auto_block = $this->checkAutoBlock())
             return $auto_block;
 
+        if ($period_block = $this->checkBlockPeriod())
+            return $period_block;
+
+        return false;
+    }
+
+    /**
+     * Првоерка блокировки по жесткому совпадению адреса
+     * 
+     * @return bool|null
+     */
+    public function checkBlockIpAddr()
+    {
         try {
-            return Block::whereHost($this->ip)->whereIsBlock(1)->count() > 0;
+            return $this->ip_block = Block::whereHost($this->ip)->whereIsBlock(1)->count() > 0;
+        } catch (Exception $e) {
+            $this->errors[] = $e->getMessage();
+            return null;
+        }
+    }
+
+    /**
+     * Проверка блокировки по диапазону
+     * 
+     * @return bool|null
+     */
+    public function checkBlockPeriod()
+    {
+        if (!$long = ip2long($this->ip))
+            return null;
+
+        try {
+            $period_block = Block::whereIsBlock(1)
+                ->whereIsPeriod(1)
+                ->where([
+                    ['period_start', '<=', $long],
+                    ['period_stop', '>=', $long],
+                ])
+                ->count();
+
+            return $this->period_block = $period_block > 0;
         } catch (Exception $e) {
             $this->errors[] = $e->getMessage();
             return null;
