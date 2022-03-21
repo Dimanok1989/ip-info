@@ -169,7 +169,12 @@ class Ip extends DataBase
     public function checkAutoBlock()
     {
         try {
-            return $this->auto_block = AutomaticBlock::whereIp($this->ip)->where('date', date("Y-m-d"))->count() > 0;
+            $row = AutomaticBlock::whereIp($this->ip)->where('date', date("Y-m-d"))->first();
+
+            if (is_integer($row->drop_block ?? null))
+                return $this->auto_block = $row->drop_block != 1;
+
+            return $this->auto_block = $row ? true : false;
         } catch (Exception $e) {
             $this->errors[] = $e->getMessage();
             return null;

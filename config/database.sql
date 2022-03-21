@@ -6,6 +6,7 @@ CREATE TABLE `automatic_blocks` (
   `id` int NOT NULL,
   `ip` varchar(100) NOT NULL,
   `date` date DEFAULT NULL,
+  `drop_block` tinyint NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
